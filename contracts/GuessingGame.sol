@@ -26,11 +26,11 @@ contract GuessingGame is VRFConsumerBase, Ownable {
     
     mapping(address => uint256) public balances;
     playerGuess[10] public guesses;
-    
-    constructor(uint256 daysAfter, uint256 _playFee)
+    //lnktkn added for testing
+    constructor(uint256 daysAfter, uint256 _playFee, address lnktkn)
     VRFConsumerBase(
         0xdD3782915140c8f3b190B5D67eAc6dc5760C46E9,
-        0xa36085F69e2889c224210F603D836748e7dC0088
+        lnktkn  
         )
         {
             nextSession = block.timestamp + (daysAfter * 2 minutes);
@@ -40,22 +40,22 @@ contract GuessingGame is VRFConsumerBase, Ownable {
         
     function startSession() public returns (bytes32 requestId) {
         require(LINK.balanceOf(address(this)) >= fee, "Not enough LINK");
-        require(block.timestamp >= nextSession);
+        require(block.timestamp >= nextSession, "session time is not started");
         require(indexx > 0, "no players joined");
         
         return requestRandomness(keyHash, fee);
     }
     
     function setPlayFee(uint256 _playFee) external onlyOwner {
-        playFee = _playFee;
+        playFee = _playFee * 1 wei;
     }
     
-    function setTimeBetween(uint256 xday) external onlyOwner {
-        timeBetween = xday;
+    function setTimeBetween(uint256 time) external onlyOwner {
+        timeBetween = time;
     }
     
     function guessNumber(uint256 numb) external payable {
-        require(msg.value == playFee * 1 wei, "sadstorybro");
+        require(msg.value == playFee * 1 wei, "not enough ether to play");
         require(indexx < 10, "10 players limit");
         playerGuess memory playerg  = playerGuess(numb, msg.sender);
         guesses[indexx] = playerg;
@@ -74,6 +74,12 @@ contract GuessingGame is VRFConsumerBase, Ownable {
         }
     }
     
+    //added for testing
+    function _calcDistance(uint256 a, uint256 b) public pure returns(uint256)
+    {
+        return calcDistance(a, b);
+    }
+
     function calcWinner(uint256 rand) internal {
         uint32 _indexx = indexx;
         
@@ -95,6 +101,11 @@ contract GuessingGame is VRFConsumerBase, Ownable {
         balances[_curWinner.player] = (playFee * 99 / 100 * (_indexx));
         indexx = 0;
         
+    }
+
+    //added for testing
+    function _calcWinner(uint256 rand) public {
+        calcWinner(rand);
     }
     
     function fulfillRandomness(bytes32 requestId, uint256 randomness) internal override {
