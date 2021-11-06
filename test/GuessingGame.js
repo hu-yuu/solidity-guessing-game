@@ -14,7 +14,6 @@ describe("Guessing game contract", function () {
     beforeEach(async () => {
 
         [owner, addr1, addr2, addr3] = await ethers.getSigners();
-        /* [addr3, rec] = new MockProvider().getWallets(); */
         mockLinkT = await deployMockContract(addr3, mockLink.abi);
 
 
@@ -56,6 +55,7 @@ describe("Guessing game contract", function () {
         })
 
         it("Should emit when player count more than 10", async () => {
+            //one player guess more than 1 time
             for (let i = 0; i < 10; i++) {
                 await contract.connect(addr1).guessNumber(15, { value: await contract.playFee() });
             }
